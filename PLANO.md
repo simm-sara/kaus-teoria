@@ -149,8 +149,18 @@ Poucos tipos, reaproveitados em toda a trilha:
    - Experimentos dos degraus 3 e 4
    - Adicionar minhas próprias músicas
 
-## Próximo passo
+## Status
 
-1. Validar o protótipo da tela da Trilha.
-2. Protótipo da tela de lição com exercício de braço (violão e baixo alinhados).
-3. Construir o MVP.
+Fases 1, 2 e 3 construídas: as 3 abas, os 9 períodos com 45 elementos e lições, os 9 Experimentos com analisador de cifra, exercícios de múltipla escolha, braço, ouvido e ritmo, revisão espaçada no Treino, Consulta e progresso exportável.
+
+Diferenças em relação ao plano original:
+
+- As músicas dos exemplos não vêm fixas no app: os Experimentos pedem para você escolher músicas do seu repertório, e o analisador de cifra calcula tom, graus e funções. Assim nenhuma análise é inventada.
+- Adicionar músicas próprias acontece dentro de cada Experimento (nome, acordes e anotações ficam salvos).
+
+## Próximos passos possíveis
+
+1. Usar por algumas semanas e anotar o que falta ou confunde.
+2. Publicar (GitHub Pages ou Netlify).
+3. Mais tipos de exercício de ouvido (progressões, função do acorde) e ditado rítmico.
+4. Sincronizar o progresso entre computadores.
