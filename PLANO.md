@@ -1,4 +1,4 @@
-# Kaus Teoria — plano
+# MUSIKAUS — plano
 
 Aplicação web para estudar teoria musical aplicada ao violão e ao baixo, com trilha gamificada e identidade visual da Kaus Lab. Uso principal: no computador.
 

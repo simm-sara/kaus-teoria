@@ -1,4 +1,4 @@
-// Kaus Teoria: roteamento, topo e atalhos.
+// MUSIKAUS: roteamento, topo e atalhos.
 
 import * as store from './store.js';
 import * as P from './progress.js';
@@ -31,7 +31,7 @@ function header(view) {
   return `<header class="top">
     <div class="top-in">
       <div class="top-left">
-        <a class="display brand" href="#/">Kaus Teoria</a>
+        <a class="display brand" href="#/">MUSIKAUS</a>
         <nav class="nav" aria-label="Navegação principal">
           <a href="#/" ${trailViews.includes(view) ? 'aria-current="page"' : ''}>Trilha</a>
           <a href="#/treino" ${cur('treino')}>Treino${due ? ` (${due})` : ''}</a>
@@ -121,7 +121,7 @@ function render(nav = false) {
   if (changed) {
     window.scrollTo({ top: 0 });
     const t = (view === '' ? 'Trilha' : view === 'consulta' ? 'Consulta' : view === 'treino' ? 'Treino' : view === 'ajustes' ? 'Ajustes' : document.querySelector('h1')?.textContent) || '';
-    document.title = (t ? t.trim() + ' · ' : '') + 'Kaus Teoria';
+    document.title = (t ? t.trim() + ' · ' : '') + 'MUSIKAUS';
   }
 }
 
