@@ -1,5 +1,6 @@
 // Progresso salvo no navegador (localStorage), com exportar e importar.
 
+// A chave mantém o nome antigo para não perder o progresso já salvo.
 const KEY = 'kaus-teoria:v1';
 const REVIEW_DAYS = [1, 3, 7, 14, 30, 60];
 

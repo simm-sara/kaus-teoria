@@ -1,4 +1,4 @@
-# Kaus Teoria
+# MUSIKAUS
 
 Aplicação web para estudar teoria musical aplicada ao violão e ao baixo, em forma de trilha. Identidade visual da Kaus Lab.
 

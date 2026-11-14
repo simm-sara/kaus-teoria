@@ -59,7 +59,7 @@ export function bind(root, rerender) {
     const blob = new Blob([store.exportJSON()], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `kaus-teoria-progresso-${store.today()}.json`;
+    a.download = `musikaus-progresso-${store.today()}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
