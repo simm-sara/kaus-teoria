@@ -964,6 +964,8 @@ const tensionFacts = fixed([
 
 // ── Registro ────────────────────────────────────────────
 
+export { mc as mcQuestion, fixed as fixedPool };
+
 export const GENERATORS = {
   nextNatural, solfegeToLetter, notesFacts,
   fretFindNote, fretNameNote, fretFacts,

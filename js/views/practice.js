@@ -1,6 +1,8 @@
 // Sessões de exercício: prática de um elemento, teste para pular e treino de revisão.
 
-import { generate } from '../exercises.js';
+import { track } from '../track.js';
+import { harpSVG } from '../ui/harp.js';
+import { midiOf, noteName } from '../harp.js';
 import * as P from '../progress.js';
 import * as store from '../store.js';
 import { pcAt, pcLabel, shuffle, INSTRUMENTS } from '../theory.js';
@@ -16,7 +18,7 @@ function newQuestion() {
   const gen = S.queues[e.id].shift();
   S.instCounter[e.id] = (S.instCounter[e.id] ?? -1) + 1;
   const inst = P.instrumentFor(e, S.instCounter[e.id]);
-  S.q = generate(gen, inst);
+  S.q = track().generate(gen, inst);
   S.q.el = e;
   S.answered = false;
   S.picked = null;
@@ -43,6 +45,10 @@ export function start(mode, id) {
   S = { mode, id, elements, total, i: 0, results: [], perEl: {}, queues: {}, instCounter: {}, done: false };
   newQuestion();
   return true;
+}
+
+export function reset() {
+  S = null;
 }
 
 export const matches = (mode, id) => !!S && S.mode === mode && (mode === 'review' || S.id === id);
@@ -74,9 +80,30 @@ function fretHTML(q) {
   return `<div class="figure"><span class="label">${INSTRUMENTS[q.inst].name}</span><div class="fb-wrap" data-fret>${svg}</div></div>`;
 }
 
+const keyOf = (q, p) => (q.type === 'harp' ? p.h + ':' + p.d : p.s + ':' + p.f);
+const fromKey = (q, k) => {
+  const [a, b] = k.split(':');
+  return q.type === 'harp' ? { h: +a, d: b } : { s: +a, f: +b };
+};
+
+function harpHTML(q) {
+  const cells = (q.marks || []).slice();
+  if (S.answered) {
+    const valid = new Set(q.valid.map((p) => keyOf(q, p)));
+    for (const p of q.valid) cells.push({ ...p, label: noteName(midiOf(p)) });
+    const picks = q.mode === 'one' ? (S.picked ? [S.picked] : []) : [...S.selected].map((k) => fromKey(q, k));
+    for (const p of picks) if (!valid.has(keyOf(q, p))) cells.push({ ...p, wrong: true });
+  }
+  const svg = harpSVG({ cells, interactive: !S.answered, holes: q.holes, selected: S.selected, title: 'Gaita: clique em soprar ou puxar no furo para responder' });
+  return `<div class="figure"><span class="label">Gaita em Dó</span><div class="fb-wrap" data-harp>${svg}</div></div>`;
+}
+
 function questionHTML() {
   const q = S.q;
   const parts = [];
+  if (q.show && q.show.harp) {
+    parts.push(`<div class="figure"><span class="label">Gaita em Dó</span><div class="fb-wrap">${harpSVG({ cells: q.show.harp.cells, showNotes: q.show.harp.showNotes })}</div></div>`);
+  }
   if (q.ref) {
     parts.push(`<div class="figure"><span class="label">${INSTRUMENTS[q.ref.inst].name} (referência)</span><div class="fb-wrap">${fretboardSVG({ inst: q.ref.inst, marks: q.ref.marks })}</div></div>`);
   }
@@ -98,7 +125,7 @@ function questionHTML() {
     });
     parts.push(`<div class="options" role="group" aria-label="Opções">${opts.join('')}</div>`);
   } else {
-    parts.push(fretHTML(q));
+    parts.push(q.type === 'harp' ? harpHTML(q) : fretHTML(q));
     if (q.mode === 'all' && !S.answered) {
       parts.push(`<div class="btn-row"><button type="button" class="btn" data-confirm>Confirmar <span class="kbd">Enter</span></button><span class="caption" style="align-self:center">${S.selected.size} marcada${S.selected.size === 1 ? '' : 's'}</span></div>`);
     }
@@ -208,9 +235,22 @@ function answerFret(s, f, rerender) {
   rerender();
 }
 
+function answerHarp(h, d, rerender) {
+  if (S.answered) return;
+  const q = S.q;
+  if (q.mode === 'one') {
+    S.picked = { h, d };
+    record(q.valid.some((p) => p.h === h && p.d === d));
+  } else {
+    const k = h + ':' + d;
+    if (S.selected.has(k)) S.selected.delete(k); else S.selected.add(k);
+  }
+  rerender();
+}
+
 function confirmAll(rerender) {
   if (S.answered) return;
-  const want = new Set(S.q.valid.map((p) => p.s + ':' + p.f));
+  const want = new Set(S.q.valid.map((p) => keyOf(S.q, p)));
   const ok = want.size === S.selected.size && [...want].every((k) => S.selected.has(k));
   record(ok);
   rerender();
@@ -246,6 +286,24 @@ export function bind(root, rerender) {
       }
     });
   }
+  const hp = root.querySelector('[data-harp]');
+  if (hp) {
+    const act = (g) => answerHarp(+g.dataset.h, g.dataset.d, rerender);
+    hp.addEventListener('click', (ev) => {
+      const g = ev.target.closest('.hp-pos');
+      if (g) act(g);
+    });
+    hp.addEventListener('keydown', (ev) => {
+      const g = ev.target.closest('.hp-pos');
+      if (g && (ev.key === 'Enter' || ev.key === ' ')) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        act(g);
+        const again = root.querySelector(`.hp-pos[data-h="${g.dataset.h}"][data-d="${g.dataset.d}"]`);
+        if (again) again.focus();
+      }
+    });
+  }
   const c = root.querySelector('[data-confirm]');
   if (c) c.addEventListener('click', () => confirmAll(rerender));
   const n = root.querySelector('[data-next]');
@@ -270,12 +328,12 @@ export function onKey(ev, rerender) {
   if (!S || S.done) return;
   if (ev.target.closest && ev.target.closest('input, textarea, select')) return;
   if (ev.key === 'Enter') {
-    if (ev.target.closest && ev.target.closest('.fb-pos, button, a')) return;
+    if (ev.target.closest && ev.target.closest('.fb-pos, .hp-pos, button, a')) return;
     if (S.answered) next(rerender);
-    else if (S.q.type === 'fret' && S.q.mode === 'all') confirmAll(rerender);
+    else if ((S.q.type === 'fret' || S.q.type === 'harp') && S.q.mode === 'all') confirmAll(rerender);
     ev.preventDefault();
   } else if (ev.key === ' ' && S.q.audio) {
-    if (ev.target.closest && ev.target.closest('.fb-pos, button')) return;
+    if (ev.target.closest && ev.target.closest('.fb-pos, .hp-pos, button')) return;
     ev.preventDefault();
     playSpec(S.q.audio);
   } else if (/^[1-9]$/.test(ev.key) && S.q.type === 'mc' && !S.answered) {

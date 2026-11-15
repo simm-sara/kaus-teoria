@@ -158,6 +158,10 @@ Diferenças em relação ao plano original:
 - As músicas dos exemplos não vêm fixas no app: os Experimentos pedem para você escolher músicas do seu repertório, e o analisador de cifra calcula tom, graus e funções. Assim nenhuma análise é inventada.
 - Adicionar músicas próprias acontece dentro de cada Experimento (nome, acordes e anotações ficam salvos).
 
+## Trilha de gaita (acrescentada depois)
+
+Uma segunda trilha, completamente separada, para quem começa do zero na harmônica diatônica em Dó. Tela inicial "Quem vai estudar?" para escolher o perfil; cada perfil tem a sua trilha e o seu progresso. 30 elementos em 6 períodos (Primeiros sons, Notas, Ritmo, Melodias, Acordes e posições, Técnica) e 6 Experimentos com músicas de domínio público (Brilha brilha estrelinha, Mary had a little lamb, Parabéns a você, Ode à Alegria, When the saints go marching in).
+
 ## Próximos passos possíveis
 
 1. Usar por algumas semanas e anotar o que falta ou confunde.

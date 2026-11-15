@@ -1,10 +1,23 @@
 # MUSIKAUS
 
-Aplicação web para estudar teoria musical aplicada ao violão e ao baixo, em forma de trilha. Identidade visual da Kaus Lab.
+Aplicação web para estudar música em forma de trilha, com duas trilhas independentes. Identidade visual da Kaus Lab.
+
+- **Violão e baixo**: teoria musical aplicada aos dois instrumentos, para quem já toca.
+- **Gaita**: harmônica diatônica em Dó, para quem começa do zero (nunca tocou e não sabe teoria).
+
+Ao abrir o app, a tela **Quem vai estudar?** mostra os perfis. Cada perfil tem a sua trilha e o seu progresso, guardados separadamente no navegador. Os nomes podem ser trocados na própria tela.
 
 O plano completo está em [PLANO.md](PLANO.md).
 
-## O que tem
+## Trilha de gaita
+
+- 30 elementos em 6 períodos (Primeiros sons, Notas, Ritmo, Melodias, Acordes e posições, Técnica) e 6 Experimentos, cada um com uma música inteira de domínio público.
+- Tablatura de gaita: `4` = soprar o furo 4, `-4` = puxar, `-4'` = bend, `6:2` = 2 tempos.
+- Desenho da gaita clicável nos exercícios e som de palheta sintetizado.
+- Consulta: mapa das notas, músicas, acordes, bends e como ler tablatura.
+- As tablaturas das músicas são conferidas nota a nota pelos testes.
+
+## Trilha de violão e baixo
 
 - **Trilha**: tabela periódica com 45 elementos em 9 períodos (Fundamentos, Intervalos, Escala maior, Acordes, Harmonia, Menor, Ritmo, Baixo, Avançado), mais 9 Experimentos com músicas reais.
 - **Lições** curtas com braço do violão e do baixo alinhados, tabelas e exemplos sonoros.
@@ -57,7 +70,11 @@ index.html
 css/app.css            identidade visual (tokens da Kaus Lab)
 js/theory.js           motor de teoria musical
 js/exercises.js        geradores de exercícios
-js/content.js          períodos, elementos, lições e experimentos
+js/content.js          trilha de violão e baixo: períodos, elementos, lições e experimentos
+js/tracks/             as duas trilhas (cordas.js e gaita.js)
+js/harp.js             modelo da gaita diatônica em Dó, tablatura e músicas
+js/track.js            trilha ativa
+js/profiles.js         perfis e onde cada um guarda o progresso
 js/progress.js         níveis, desbloqueio e próximo elemento
 js/store.js            progresso no navegador, revisão espaçada
 js/audio.js            som sintetizado (Web Audio)
@@ -66,4 +83,4 @@ js/views/              telas: trilha, lição, prática, experimento, consulta, 
 tests/                 testes (node --test)
 ```
 
-Para acrescentar conteúdo, edite `js/content.js`: cada elemento tem a lição (lista de blocos) e os geradores de exercício que usa.
+Para acrescentar conteúdo, edite `js/content.js` (violão e baixo) ou `js/tracks/gaita.js` (gaita): cada elemento tem a lição (lista de blocos) e os geradores de exercício que usa.

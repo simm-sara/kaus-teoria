@@ -1,6 +1,6 @@
 import * as P from '../progress.js';
 import * as store from '../store.js';
-import { esc } from '../ui/blocks.js';
+import { esc, tabHTML } from '../ui/blocks.js';
 import { analyzerHTML, bindAnalyzer } from './analyzer.js';
 
 export function render(id) {
@@ -23,6 +23,8 @@ export function render(id) {
     ${st === 'lock' ? '<div class="tip">Este experimento libera quando os 5 elementos do período estiverem pelo menos praticados. Você já pode ler e se preparar.</div>' : ''}
     ${done ? `<div class="tip">Concluído em ${esc(data.at.split('-').reverse().join('/'))}. Você pode refazer com outra música quando quiser.</div>` : ''}
 
+    ${e.song ? `<section style="display:flex;flex-direction:column;gap:14px"><h2 class="display h2">${esc(e.song.name)}</h2>${e.song.origin ? `<span class="caption">${esc(e.song.origin)}</span>` : ''}${tabHTML(e.song.tab, 'Tablatura (sem sinal: soprar · com "-": puxar · número pequeno: tempos)')}</section>` : ''}
+
     <section style="display:flex;flex-direction:column;gap:14px">
       <h2 class="display h2">Passos</h2>
       <ol class="steps">
@@ -34,8 +36,8 @@ export function render(id) {
 
     <section style="display:flex;flex-direction:column;gap:10px">
       <h2 class="display h2">Anotações</h2>
-      <div class="field"><label for="xp-song">Música</label><input type="text" id="xp-song" value="${esc(data.song || '')}" placeholder="Nome da música e artista"></div>
-      <div class="field"><label for="xp-notes">O que eu descobri</label><textarea id="xp-notes" placeholder="Tom, graus, acordes de fora, o que foi difícil...">${esc(data.notes || '')}</textarea></div>
+      ${e.song ? '' : '<div class="field"><label for="xp-song">Música</label>'}${e.song ? `<input type="hidden" id="xp-song" value="${esc(e.song.name)}">` : `<input type="text" id="xp-song" value="${esc(data.song || '')}" placeholder="Nome da música e artista"></div>`}
+      <div class="field"><label for="xp-notes">O que eu descobri</label><textarea id="xp-notes" placeholder="${e.song ? 'O que foi difícil, quanto tempo levou, o que melhorou...' : 'Tom, graus, acordes de fora, o que foi difícil...'}">${esc(data.notes || '')}</textarea></div>
       <span class="caption">Salvo automaticamente neste navegador.</span>
     </section>
 
