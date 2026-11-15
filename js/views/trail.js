@@ -1,4 +1,4 @@
-import { PERIODS, inPeriod, KIND_LABEL, TAG, NON_EXP } from '../content.js';
+import { track } from '../track.js';
 import * as P from '../progress.js';
 import * as store from '../store.js';
 import { esc } from '../ui/blocks.js';
@@ -15,7 +15,7 @@ function tile(e, inst) {
   const dim = (inst === 'violao' && e.kind === 'b') || (inst === 'baixo' && e.kind === 'v');
   const cls = ['tile', st, e.kind === 'x' ? 'exp' : '', selected === e.id ? 'sel' : '', dim ? 'dim' : ''].join(' ');
   return `<button type="button" class="${cls}" data-sel="${e.id}" aria-pressed="${selected === e.id}" aria-label="${esc(e.id + ' ' + e.name + ', ' + P.STATE_LABEL[st])}">
-    <span class="top-line"><span>${e.id}</span><span class="tag">${TAG[e.kind]}</span></span>
+    <span class="top-line"><span>${e.id}</span><span class="tag">${track().TAG[e.kind]}</span></span>
     <span class="sym">${e.s}</span>
     <span class="bottom"><span class="nm">${esc(e.name)}</span>${marks(lvl)}</span>
   </button>`;
@@ -27,6 +27,7 @@ function detail(e) {
   const r = store.get().els[e.id] || { v: 0, b: 0 };
   const rows = [];
   if (e.kind === 'x') rows.push(['Feito', r.v >= 3 ? 3 : 0]);
+  else if (!track().instruments) rows.push([track().name, Math.max(r.v, r.b)]);
   else {
     if (e.kind !== 'b') rows.push(['Violão', r.v]);
     if (e.kind !== 'v') rows.push(['Baixo', r.b]);
@@ -39,7 +40,7 @@ function detail(e) {
     <div class="el-head">
       <div class="big-tile ${st === 'cur' ? 'cur' : lock ? 'lock' : e.kind === 'x' ? 'exp' : ''}"><span class="n">${e.id}</span><span class="sym">${e.s}</span></div>
       <div>
-        <span class="label construction">${KIND_LABEL[e.kind]}</span>
+        <span class="label construction">${track().KIND_LABEL[e.kind]}</span>
         <h2 class="display h2">${esc(e.name)}</h2>
         <span class="caption">PERÍODO ${e.period} · ${P.STATE_LABEL[st].toUpperCase()}</span>
       </div>
@@ -68,7 +69,10 @@ function review() {
 }
 
 export function render() {
-  const inst = store.settings().inst;
+  const T = track();
+  const { PERIODS, inPeriod, NON_EXP } = T;
+  const inst = T.instruments ? store.settings().inst : 'ambos';
+  if (selected && !T.byId[selected]) selected = null;
   const cur = P.current();
   if (!selected || !P.find(selected)) selected = cur ? cur.id : '01';
   const dom = P.dominatedCount();
@@ -95,9 +99,9 @@ export function render() {
         <h1 class="display page-title">Trilha</h1>
       </div>
       <div class="progress">
-        <div class="progress-row"><span>Elementos dominados${inst !== 'ambos' ? ' (' + (inst === 'violao' ? 'violão' : 'baixo') + ')' : ''}</span><b>${dom} / 45</b></div>
-        <div class="bar" aria-hidden="true">${bar}</div>
-        <div class="bar-scale" aria-hidden="true"><span>01</span><span>15</span><span>30</span><span>45</span></div>
+        <div class="progress-row"><span>Elementos dominados${inst !== 'ambos' ? ' (' + (inst === 'violao' ? 'violão' : 'baixo') + ')' : ''}</span><b>${dom} / ${NON_EXP.length}</b></div>
+        <div class="bar" aria-hidden="true" style="grid-template-columns:repeat(${NON_EXP.length},minmax(0,1fr))">${bar}</div>
+        <div class="bar-scale" aria-hidden="true">${[1, 1 / 3, 2 / 3, 1].map((f, i) => `<span>${String(i === 0 ? 1 : Math.round(NON_EXP.length * f)).padStart(2, '0')}</span>`).join('')}</div>
       </div>
     </div>
     <div class="trail">
@@ -107,10 +111,7 @@ export function render() {
           ${rows}
         </div>
         <div class="legend">
-          <span><b>V·B</b> ponte violão → baixo</span>
-          <span><b>V</b> ramo violão</span>
-          <span><b>B</b> ramo baixo</span>
-          <span><b>EXP</b> experimento com música real</span>
+          ${T.LEGEND.map(([k, l]) => `<span><b>${k}</b> ${l}</span>`).join('')}
           <span>Traços: vista · praticada · dominada</span>
         </div>
       </section>

@@ -74,21 +74,101 @@ export function playNote(midi, when = 0, dur = 1.6, gain = 0.8) {
   src.stop(t + dur + 0.2);
 }
 
+// Palheta (gaita): duas ondas levemente desafinadas, filtradas, com ataque suave.
+export function playReed(midi, when = 0, dur = 0.8, gain = 0.5, { vibrato = false } = {}) {
+  const c = ac();
+  const t = c.currentTime + when;
+  const f = freq(midi);
+  const out = c.createGain();
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(gain, t + 0.05);
+  out.gain.setValueAtTime(gain, t + Math.max(0.06, dur - 0.08));
+  out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = Math.min(4200, f * 6);
+  lp.Q.value = 1.2;
+  lp.connect(out);
+  out.connect(master);
+  const oscs = [['sawtooth', 0, 0.35], ['square', 6, 0.18]].map(([type, cents, g]) => {
+    const o = c.createOscillator();
+    o.type = type;
+    o.frequency.value = f;
+    o.detune.value = cents;
+    const og = c.createGain();
+    og.gain.value = g;
+    o.connect(og);
+    og.connect(lp);
+    o.start(t);
+    o.stop(t + dur + 0.05);
+    return o;
+  });
+  if (vibrato) {
+    const lfo = c.createOscillator();
+    const depth = c.createGain();
+    lfo.frequency.value = 5.5;
+    depth.gain.value = gain * 0.45;
+    lfo.connect(depth);
+    depth.connect(out.gain);
+    lfo.start(t + 0.3);
+    lfo.stop(t + dur);
+    oscs.forEach((o) => {
+      const fd = c.createGain();
+      fd.gain.value = 8;
+      lfo.connect(fd);
+      fd.connect(o.detune);
+    });
+  }
+}
+
 // Notas em sequência (melódico).
-export function playSequence(midis, gap = 0.55) {
-  midis.forEach((m, i) => playNote(m, i * gap, 1.4));
+export function playSequence(midis, gap = 0.55, reed = false) {
+  midis.forEach((m, i) => (reed ? playReed(m, i * gap, gap * 0.92) : playNote(m, i * gap, 1.4)));
   return midis.length * gap + 1;
 }
 
+// Notas com durações (em tempos): [{midi, dur}].
+export function playTimed(items, { beat = 0.45, reed = true } = {}) {
+  let t = 0;
+  for (const it of items) {
+    const d = (it.dur || 1) * beat;
+    if (it.midi) (reed ? playReed(it.midi, t, d * 0.94) : playNote(it.midi, t, d + 0.4));
+    t += d;
+  }
+  return t + 0.5;
+}
+
 // Acorde "dedilhado" rápido, do grave para o agudo.
-export function playChord(midis, strum = 0.035) {
+export function playChord(midis, strum = 0.035, reed = false) {
   const sorted = midis.slice().sort((a, b) => a - b);
+  if (reed) {
+    sorted.forEach((m) => playReed(m, 0, 1.4, 0.32));
+    return 1.6;
+  }
   sorted.forEach((m, i) => playNote(m, i * strum, 2.2, 0.55));
   return 2.4;
 }
 
+// Ritmo de trem: acordes soprado e puxado em colcheias, sopra-sopra-puxa-puxa.
+export function playTrain(blow, draw, { bars = 2, bpm = 96 } = {}) {
+  const step = 60 / bpm / 2;
+  for (let i = 0; i < bars * 8; i++) {
+    const chord = Math.floor(i / 2) % 2 === 0 ? blow : draw;
+    const accent = i % 2 === 0;
+    chord.forEach((m) => playReed(m, i * step, step * 0.85, accent ? 0.3 : 0.16));
+  }
+  return bars * 8 * step + 0.4;
+}
+
 // Intervalo: primeiro separado, depois junto.
-export function playInterval(a, b) {
+export function playInterval(a, b, reed = false) {
+  if (reed) {
+    playReed(a, 0, 0.6);
+    playReed(b, 0.7, 0.6);
+    playReed(a, 1.5, 1.2, 0.3);
+    playReed(b, 1.5, 1.2, 0.3);
+    return 3;
+  }
   playNote(a, 0, 1.2);
   playNote(b, 0.6, 1.2);
   playNote(a, 1.4, 1.6, 0.6);

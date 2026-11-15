@@ -1,10 +1,10 @@
-import { KIND_LABEL, ELEMENTS, usesInstrument } from '../content.js';
+import { track } from '../track.js';
 import * as P from '../progress.js';
 import * as store from '../store.js';
 import { esc, lessonHTML } from '../ui/blocks.js';
 
 function neighbors(e) {
-  const list = ELEMENTS.filter((x) => x.kind !== 'x');
+  const list = track().NON_EXP;
   const i = list.indexOf(e);
   return { prev: list[i - 1], next: list[i + 1] };
 }
@@ -15,9 +15,10 @@ export function render(id) {
   const st = P.status(e);
   const lock = st === 'lock';
   if (!lock) store.markSeen(e.id);
-  const inst = store.settings().inst;
+  const T = track();
+  const inst = T.instruments ? store.settings().inst : 'ambos';
   const { prev, next } = neighbors(e);
-  const instNote = usesInstrument(e) && e.kind !== 'v' && e.kind !== 'b'
+  const instNote = T.instruments && T.usesInstrument(e) && e.kind !== 'v' && e.kind !== 'b'
     ? `<p class="caption" style="margin:0;font-size:11px">Os exercícios de braço seguem o instrumento escolhido no topo${inst === 'ambos' ? ' (alternando violão e baixo)' : ''}.</p>`
     : '';
 
@@ -26,7 +27,7 @@ export function render(id) {
     <div class="el-head">
       <div class="big-tile ${st === 'cur' ? 'cur' : lock ? 'lock' : ''}"><span class="n">${e.id}</span><span class="sym">${e.s}</span></div>
       <div>
-        <span class="label construction">${KIND_LABEL[e.kind]} · Período ${e.period}</span>
+        <span class="label construction">${T.KIND_LABEL[e.kind]} · Período ${e.period}</span>
         <h1 class="display page-title" style="font-size:clamp(36px,5vw,56px)">${esc(e.name)}</h1>
         <p style="margin:0;max-width:560px">${esc(e.desc)}</p>
       </div>

@@ -298,3 +298,36 @@ hr.rule { border: none; border-top: 1px solid var(--rule); margin: 0; }
   .nav a { padding: 14px 0 11px; }
   .side { max-width: none; }
 }
+
+/* ── Gaita ── */
+.harp { display: block; max-width: none; }
+.hp-pos { cursor: pointer; }
+.hp-pos:focus { outline: none; }
+.hp-pos:focus-visible .hp-hit { stroke: var(--ink); stroke-width: 2; }
+.hp-pos:hover .hp-hit { fill: rgba(26, 26, 26, 0.08); }
+.tab-line { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tab-tok {
+  min-width: 38px; height: 34px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; gap: 2px;
+  border: 1px solid var(--ink); font-size: 14px; font-weight: 600; background: var(--surface);
+}
+.tab-tok.draw { background: var(--surface-alt); }
+.tab-tok.long { border-width: 2px; }
+.tab-tok small { font-size: 9px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+.tab-tok.rest { font-weight: 400; color: var(--muted); border-style: dashed; }
+.tab-bar { color: var(--construction); padding: 0 2px; }
+
+/* ── Perfis ── */
+.profiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.profile {
+  border: 2px solid var(--ink); background: var(--surface); padding: 24px; display: flex; flex-direction: column; gap: 18px;
+  text-align: left; cursor: pointer; text-decoration: none; color: var(--ink); min-height: 300px;
+}
+.profile:hover { background: var(--surface-alt); color: var(--ink); }
+.profile .ptile { width: 120px; height: 120px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid var(--ink); }
+.profile.last .ptile { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.profile .ptile .sym { font-family: var(--font-display); font-weight: 850; font-stretch: 118%; font-size: 56px; line-height: 0.78; letter-spacing: -0.05em; }
+.profile .pname { font-size: 36px; }
+.profile-edit { display: flex; gap: 8px; align-items: center; }
+.profile-edit input { max-width: 220px; min-height: 36px; padding: 6px 10px; }
+.who { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; border: 1px solid var(--rule); padding: 0 12px; height: 40px; }
+.who:hover { border-color: var(--ink); color: var(--ink); }

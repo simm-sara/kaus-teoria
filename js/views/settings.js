@@ -1,16 +1,18 @@
 import * as store from '../store.js';
 import * as audio from '../audio.js';
-import { ELEMENTS } from '../content.js';
+import { esc } from '../ui/blocks.js';
+import { track } from '../track.js';
+import * as profiles from '../profiles.js';
 
 export function render() {
   const s = store.settings();
   const st = store.get();
-  const done = ELEMENTS.filter((e) => (st.els[e.id] || {}).v >= 2 || (st.els[e.id] || {}).b >= 2).length;
+  const done = track().ELEMENTS.filter((e) => (st.els[e.id] || {}).v >= 2 || (st.els[e.id] || {}).b >= 2).length;
   return `<main class="page narrow" id="conteudo">
     <div class="page-head"><h1 class="display page-title">Ajustes</h1></div>
 
     <section class="card soft">
-      <h2 class="display h3">Progresso</h2>
+      <h2 class="display h3">Progresso de ${esc(profiles.nameOf(profiles.find(profiles.currentId()) || profiles.PROFILES[0]))}</h2>
       <p style="margin:0">${st.xp} XP · ${done} elementos praticados · ${st.log.length} sessões registradas.</p>
       <p class="caption" style="margin:0;font-size:11px">O progresso fica salvo neste navegador. Exporte de vez em quando para não perder, ou para levar para outro computador.</p>
       <div class="btn-row">
@@ -41,12 +43,13 @@ export function render() {
         <li><span>Confirmar / próxima pergunta</span><span>Enter</span></li>
         <li><span>Ouvir de novo</span><span>Espaço</span></li>
         <li><span>Trilha · Treino · Consulta</span><span>T · R · C</span></li>
+        <li><span>Trocar de perfil</span><span>P</span></li>
       </ul>
     </section>
 
     <section class="card soft">
       <h2 class="display h3">Recomeçar</h2>
-      <p style="margin:0;font-size:12px">Apaga todo o progresso deste navegador. Não dá para desfazer (a não ser que você tenha exportado antes).</p>
+      <p style="margin:0;font-size:12px">Apaga todo o progresso deste perfil neste navegador (os outros perfis não são afetados). Não dá para desfazer (a não ser que você tenha exportado antes).</p>
       <div class="btn-row"><button type="button" class="btn ghost" data-reset>Apagar progresso</button></div>
     </section>
   </main>`;
@@ -59,7 +62,7 @@ export function bind(root, rerender) {
     const blob = new Blob([store.exportJSON()], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `musikaus-progresso-${store.today()}.json`;
+    a.download = `musikaus-${profiles.currentId() || 'perfil'}-progresso-${store.today()}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
